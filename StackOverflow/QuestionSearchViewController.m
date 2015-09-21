@@ -23,7 +23,7 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-  self.isDownloading = true;
+//  self.isDownloading = true;
 //  UISearchBar *searchBar = [[UISearchBar alloc]init];
   self.tableView.dataSource = self;
 //  self.tableView.delegate = self;
@@ -46,6 +46,7 @@
 #pragma mark - UISearchBarDelegate
 -(void)searchBarSearchButtonClicked:(UISearchBar *)searchBar {
   [searchBar resignFirstResponder]; // ?
+    self.isDownloading = true;
   [StackOverflowService questionsForSearchTerm:searchBar.text completionHandler:^(NSArray *results, NSError *error) {
     if (error) {
       UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"Error" message:error.localizedDescription preferredStyle:UIAlertControllerStyleAlert];

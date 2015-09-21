@@ -229,7 +229,7 @@ static void *isDownloadingContext = &isDownloadingContext;
   
   if (context == isDownloadingContext) {
 //    BOOL newV = [(NSNumber *)change[@"isDownloading"]]
-    BOOL newValue = [(NSNumber *)change[NSKeyValueChangeNewKey] boolValue];
+    BOOL newValue = [(NSNumber *)change[NSKeyValueChangeNewKey] boolValue]; // if the bool is true of false
     if (newValue) {
       [self.menuVC.questionSearchActivityIndicator startAnimating];
     } else {
