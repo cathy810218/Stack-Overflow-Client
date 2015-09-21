@@ -12,14 +12,19 @@
 #import "MyProfileViewController.h"
 #import "WebViewController.h"
 #import "Errors.h"
+#import "MenuTableViewController.h"
 NSTimeInterval const kTimeToSlideMenuOpen = 0.3;
 
 CGFloat const kburgerOpenScreenDivider = 3.0;
 CGFloat const kburgerOpenScreenMultiplier = 2.0;
 CGFloat const kburgerButtonWidth = 50.0;
 CGFloat const kburgerButtonHeight = 50.0;
+static void *isDownloadingContext = &isDownloadingContext;
+
 
 @interface BurgerMenuViewController () <UITableViewDelegate>
+@property (strong,nonatomic) MenuTableViewController *menuVC;
+@property (strong,nonatomic) QuestionSearchViewController *questionSearchViewController;
 @property (strong, nonatomic) UIViewController *topViewController;
 @property (strong, nonatomic) UIButton *burgerButton;
 @property (strong, nonatomic) NSArray *viewControllers;
@@ -42,7 +47,7 @@ CGFloat const kburgerButtonHeight = 50.0;
   
   
   // creating a child
-  UITableViewController *mainMenuVC = [self.storyboard instantiateViewControllerWithIdentifier:@"MainMenuVC"];
+  MenuTableViewController *mainMenuVC = [self.storyboard instantiateViewControllerWithIdentifier:@"MainMenuVC"];
   mainMenuVC.tableView.delegate = self;
   
   //turn the object into dictionary
@@ -55,6 +60,7 @@ CGFloat const kburgerButtonHeight = 50.0;
   mainMenuVC.view.frame = self.view.frame;
   [self.view addSubview: mainMenuVC.view];
   [mainMenuVC didMoveToParentViewController:self];
+  self.menuVC = mainMenuVC;
   
   //
   UIStoryboard *myQuestionStroyboard = [UIStoryboard storyboardWithName:@"MyQuestions" bundle:[NSBundle mainBundle]];
@@ -66,7 +72,8 @@ CGFloat const kburgerButtonHeight = 50.0;
   self.viewControllers = @[questionSearchVC, myQVC, myProfileVC]; // array of VCs
   
   // add observer
-  [self addObserver:questionSearchVC forKeyPath:@"isDownloading" options:NSKeyValueObservingOptionNew context:nil];
+  self.questionSearchViewController = questionSearchVC;
+  [self.questionSearchViewController addObserver:self forKeyPath:@"isDownloading" options:NSKeyValueObservingOptionNew context:isDownloadingContext];
   
   // adding question search child view
   [self addChildViewController:questionSearchVC];
@@ -191,6 +198,21 @@ CGFloat const kburgerButtonHeight = 50.0;
   }];
 }
 
+-(void)viewDidAppear:(BOOL)animated {
+  [super viewDidAppear:animated];
+
+
+  NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+//  NSLog(@"token: %@", [defaults objectForKey:@"token"]);
+  
+  if ([defaults objectForKey:@"token"] == nil) {
+    //   check if you alread yhave the token
+    WebViewController *webVC = [[WebViewController alloc]init];
+    [self presentViewController:webVC animated:true completion:nil];
+  }
+}
+
+
 #pragma mark - UITableViewDelegate
 -(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
   NSLog(@"%ld", (long)indexPath.row);
@@ -201,24 +223,27 @@ CGFloat const kburgerButtonHeight = 50.0;
   }
 }
 
--(void)viewDidAppear:(BOOL)animated {
-  [super viewDidAppear:animated];
+
+
+-(void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {
   
-  NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-  NSLog(@"token: %@", [defaults objectForKey:@"token"]);
-  
-  if ([defaults objectForKey:@"token"] == nil) {
-//   check if you alread yhave the token
-    WebViewController *webVC = [[WebViewController alloc]init];
-    [self presentViewController:webVC animated:true completion:^{
-      
-    }];
+  if (context == isDownloadingContext) {
+//    BOOL newV = [(NSNumber *)change[@"isDownloading"]]
+    BOOL newValue = [(NSNumber *)change[NSKeyValueChangeNewKey] boolValue];
+    if (newValue) {
+      [self.menuVC.questionSearchActivityIndicator startAnimating];
+    } else {
+      [self.menuVC.questionSearchActivityIndicator stopAnimating];
+    }
   }
 }
 
--(void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {
-  BOOL *newValue = [(NSNumber *)change [NSKeyValueChangeNewKey] boolValue];
-  
+-(void)dealloc {
+  // remove an observer
+    [self.questionSearchViewController removeObserver:self forKeyPath:@"isDownloading" context:isDownloadingContext];
+
 }
+
+
 
 @end

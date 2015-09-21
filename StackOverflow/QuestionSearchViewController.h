@@ -9,5 +9,5 @@
 #import <UIKit/UIKit.h>
 
 @interface QuestionSearchViewController : UIViewController
-@property BOOL isDownloading;
+@property (nonatomic) BOOL isDownloading;
 @end
