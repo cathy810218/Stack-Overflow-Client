@@ -18,8 +18,8 @@
 + (void)questionsForSearchTerm: (NSString *)searchTerm completionHandler:(void(^)(NSArray *, NSError *))completionHandler {
   NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
   NSLog(@"Key: %@, Token: %@, Search Term: %@",[defaults objectForKey:@"key"],[defaults objectForKey:@"token"],searchTerm);
-  
-  NSString *url = [NSString stringWithFormat:@"https://api.stackexchange.com/2.2/search?key=%@&access_token=%@&order=desc&sort=activity&intitle=%@&site=stackoverflow", [defaults objectForKey:@"key"],[defaults objectForKey:@"token"],searchTerm];
+  NSString *newSearchTerm = [searchTerm stringByReplacingOccurrencesOfString:@" " withString:@""];
+  NSString *url = [NSString stringWithFormat:@"https://api.stackexchange.com/2.2/search?key=%@&access_token=%@&order=desc&sort=activity&intitle=%@&site=stackoverflow", [defaults objectForKey:@"key"],[defaults objectForKey:@"token"],newSearchTerm];
   
   
   AFHTTPRequestOperationManager *manager = [AFHTTPRequestOperationManager manager];
@@ -82,6 +82,27 @@
   }];
 
 }
+
+
++ (void)questionsForUser:(void(^)(NSArray *questions, NSError *error))completionHandler {
+  NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+  NSString *url = [NSString stringWithFormat:@"https://api.stackexchange.com/2.2/me/questions?order=desc&sort=activity&site=stackoverflow&key=%@&access_token=%@",[defaults objectForKey:@"key"],[defaults objectForKey:@"token"]];
+  
+  AFHTTPRequestOperationManager *manager = [AFHTTPRequestOperationManager manager];
+  [manager GET:url parameters:nil success:^(AFHTTPRequestOperation * _Nonnull operation, id  _Nonnull responseObject) {
+    NSArray *questions = [QuestionJSONParser questionsResultsFromJSON:responseObject];
+    completionHandler(questions, nil);
+  } failure:^(AFHTTPRequestOperation * _Nonnull operation, NSError * _Nonnull error) {
+    if (operation.response) {
+      NSError *stackOverflowError = [self errorForStatusCode:operation.response.statusCode];
+      completionHandler(nil,stackOverflowError);
+    } else {
+      NSError *reachabilityError = [self checkReachAbility];
+      completionHandler(nil,reachabilityError);
+    }
+  }];
+}
+
 
 
 + (NSError *)checkReachAbility {

@@ -59,8 +59,9 @@
         self.userImage.image = image;
         self.nameLabel.text = [NSString stringWithFormat:@"Name: %@", myProfile.ownerName];
         self.reputationLabel.text = [NSString stringWithFormat:@"Reputation: %@", myProfile.reputation];
-        self.accIDLabel.text = [NSString stringWithFormat:@"Name: %@", myProfile.accID];
+        self.accIDLabel.text = [NSString stringWithFormat:@"Account ID: %@", myProfile.accID];
       }
+      NSLog(@"%@",result);
     }
   }];
 }

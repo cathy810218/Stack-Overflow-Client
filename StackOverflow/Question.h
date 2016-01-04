@@ -14,6 +14,7 @@
 @property (strong, nonatomic) NSString *avatarURL;
 @property (strong, nonatomic) UIImage *avatarPic;
 @property (strong, nonatomic) NSString *ownerName;
-
+@property (strong, nonatomic) NSString *questionLabel;
+@property (strong, nonatomic) NSString *contentLabel;
 
 @end

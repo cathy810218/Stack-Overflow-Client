@@ -23,11 +23,7 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-//  self.isDownloading = true;
-//  UISearchBar *searchBar = [[UISearchBar alloc]init];
   self.tableView.dataSource = self;
-//  self.tableView.delegate = self;
-//  self.searchBar = searchBar;
   self.searchBar.delegate = self;
   
   // add the KEY

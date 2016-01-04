@@ -15,6 +15,7 @@
   NSMutableArray *profiles = [[NSMutableArray alloc] init];
   
   NSArray *items = jsonInfo[@"items"];
+  NSLog(@"%@", jsonInfo);
   for(NSDictionary *item in items) {
     Profile *profile = [[Profile alloc] init];
     profile.ownerName = item[@"display_name"];
